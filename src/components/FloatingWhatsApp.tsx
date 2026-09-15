@@ -1,8 +1,16 @@
 "use client";
 
 import { MessageCircle } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function FloatingWhatsApp() {
+  const pathname = usePathname();
+
+  // Hide WhatsApp floating button inside Admin dashboard and Live classrooms
+  if (pathname?.startsWith("/admin") || pathname?.startsWith("/live")) {
+    return null;
+  }
+
   const whatsappUrl =
     "https://wa.me/201011358667?text=" +
     encodeURIComponent(
@@ -12,7 +20,7 @@ export default function FloatingWhatsApp() {
   return (
     <aside
       aria-label="التواصل المباشر عبر واتساب"
-      className="fixed bottom-6 left-6 z-50 flex items-center gap-3 group"
+      className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-40 flex items-center gap-3 group"
     >
       {/* Tooltip on hover */}
       <span className="hidden sm:inline-block px-3.5 py-1.5 rounded-xl bg-slate-900/90 text-white text-xs font-bold border border-white/10 shadow-2xl backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">

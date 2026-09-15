@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { Crown } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import UserMenu from "./auth/UserMenu";
+import MobileNavDrawer from "./MobileNavDrawer";
 
 export default async function Navbar() {
   // Fetch session securely on the server
@@ -28,8 +29,8 @@ export default async function Navbar() {
           <Link href="/#reviews" className="hover:text-[var(--theme-primary)] transition-colors">آراء الطلاب</Link>
         </div>
 
-        {/* Auth / User */}
-        <div className="flex items-center gap-3">
+        {/* Auth / User + Mobile Drawer */}
+        <div className="flex items-center gap-2 sm:gap-3">
           {session?.user ? (
             <UserMenu user={session.user} />
           ) : (
@@ -40,11 +41,14 @@ export default async function Navbar() {
               <Link href="/login" className="hidden md:flex px-5 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 hover:text-white text-sm font-bold transition-all">
                 تسجيل الدخول
               </Link>
-              <Link href="/login" className="btn-theme-primary px-5 py-2.5 rounded-xl text-sm font-black transition-all">
+              <Link href="/login" className="btn-theme-primary px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all">
                 ابدأ مجاناً
               </Link>
             </>
           )}
+
+          {/* Mobile Navigation Drawer */}
+          <MobileNavDrawer session={session} />
         </div>
       </div>
     </nav>

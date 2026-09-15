@@ -1,0 +1,435 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------------------------------------------
+// 1. جدول الطلاب والمستخدمين
+// ------------------------------------------------------
+enum Role {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+model User {
+  id            String       @id @default(cuid())
+  name          String?
+  username      String?      @unique
+  email         String?      @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  country       String       @default("KSA") // KSA, UAE, EGY
+  role          Role         @default(USER)
+  isActive      Boolean      @default(true)
+  accounts      Account[]
+  sessions      Session[]
+  enrollments   Enrollment[]
+  liveTickets   LiveTicket[]
+  quizSubmissions QuizSubmission[]
+  certificates    Certificate[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ------------------------------------------------------
+// 2. جدول الأقسام (الكلية / القسم)
+// ------------------------------------------------------
+model Department {
+  id           String     @id @default(cuid())
+  name         String
+  slug         String     @unique
+  universityId String
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  courses      Course[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+// ------------------------------------------------------
+// 3. جدول الدول
+// ------------------------------------------------------
+model Country {
+  id           String @id @default(cuid())
+  name         String @unique
+  slug         String @unique
+  code         String @unique
+  currencyCode String @default("SAR")
+  usdRate      Float  @default(3.75)
+
+  universities University[]
+  courses      Course[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ------------------------------------------------------
+// 4. جدول الجامعات
+// ------------------------------------------------------
+model University {
+  id   String @id @default(cuid())
+  name String
+  slug String @unique
+
+  countryId String
+  country   Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  departments Department[]
+  courses     Course[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ------------------------------------------------------
+// 5. جدول الكورسات
+// ------------------------------------------------------
+model Course {
+  id          String  @id @default(cuid())
+  title       String
+  description String? @db.Text
+  thumbnail   String?
+
+  priceLocal Float @default(0)
+  priceUSD   Float @default(0)
+
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  isMaestroAcademy Boolean @default(false)
+
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  universityId String?
+  university   University? @relation(fields: [universityId], references: [id], onDelete: SetNull)
+
+  countryId String?
+  country   Country? @relation(fields: [countryId], references: [id], onDelete: SetNull)
+
+  stage            String          @default("UNIVERSITY") // "SECONDARY" | "UNIVERSITY"
+  secondaryGradeId String?
+  secondaryGrade   SecondaryGrade? @relation(fields: [secondaryGradeId], references: [id], onDelete: SetNull)
+
+  modules      Module[]
+  chapters     Chapter[]
+  enrollments  Enrollment[]
+  liveSessions LiveSession[]
+  quizzes      Quiz[]
+  certificates Certificate[]
+}
+
+// ------------------------------------------------------
+// 6. جدول محتوى الكورس
+// ------------------------------------------------------
+model Module {
+  id            String  @id @default(cuid())
+  title         String
+  videoUrl      String?
+  pdfUrl        String?
+  isFreePreview Boolean @default(false)
+  order         Int     @default(0)
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ------------------------------------------------------
+// 7. جدول الاشتراكات وعمليات الشراء (Payment Gateways)
+// ------------------------------------------------------
+model Enrollment {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId       String
+  course         Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  pricePaid      Float
+  
+  // حالة الاشتراك وبيانات التحويل وإيصال الدفع
+  status         String    @default("ACTIVE") // "PENDING" | "ACTIVE" | "SUSPENDED" | "REJECTED"
+  paymentMethod  String    @default("MANUAL") // "INSTAPAY" | "VODAFONE_CASH" | "BANK_TRANSFER" | "MANUAL"
+  senderPhone    String?   // رقم المحفظة أو الحساب المحوّل منه
+  transactionRef String?   // الرقم المرجعي أو كود المعاملة
+  receiptUrl     String?   @db.Text // رابط أو صورة إيصال التحويل
+  adminNote      String?   // ملاحظات الإدارة أو سبب الرفض
+  activatedAt    DateTime? // تاريخ التفعيل
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+
+  @@unique([userId, courseId])
+}
+
+// ------------------------------------------------------
+// 8. المنهج الدراسي الجديد (Curriculum)
+// ------------------------------------------------------
+model Chapter {
+  id        String   @id @default(cuid())
+  title     String
+  order     Int      @default(0)
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lesson {
+  id            String   @id @default(cuid())
+  title         String
+  videoUrl      String?
+  attachmentUrl String?
+  isFree        Boolean  @default(false)
+  order         Int      @default(0)
+  chapterId     String
+  chapter       Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  quizzes       Quiz[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ------------------------------------------------------
+// 9. إعدادات المنصة ومكتبة الثيمات العامة
+// ------------------------------------------------------
+model SiteSetting {
+  id        String   @id @default("global")
+  theme     String   @default("emerald")
+  updatedAt DateTime @updatedAt
+}
+
+// ------------------------------------------------------
+// 10. جدول صفوف ومناهج المرحلة الثانوية
+// ------------------------------------------------------
+model SecondaryGrade {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  countryCode String   @default("EGY")
+  description String?
+  order       Int      @default(0)
+  courses     Course[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ------------------------------------------------------
+// 11. جدول الأبحاث العلمية وبراءات الابتكار
+// ------------------------------------------------------
+model ResearchPaper {
+  id          String   @id @default(cuid())
+  title       String
+  titleAr     String
+  journal     String
+  year        Int      @default(2025)
+  category    String   @default("general")
+  authors     String
+  abstractAr  String   @db.Text
+  impact      String?
+  doi         String?
+  order       Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ------------------------------------------------------
+// 12. جدول آراء الطلاب وقصص النجاح
+// ------------------------------------------------------
+model StudentReview {
+  id          String   @id @default(cuid())
+  name        String
+  stage       String   @default("secondary")
+  stageLabel  String
+  affiliation String
+  rating      Int      @default(5)
+  date        String?
+  subject     String
+  review      String   @db.Text
+  isApproved  Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ------------------------------------------------------
+// 13. جدول الحصص المباشرة واللايف التفاعلي
+// ------------------------------------------------------
+model LiveSession {
+  id                      String       @id @default(cuid())
+  title                   String
+  description             String?      @db.Text
+  scheduledAt             DateTime
+  duration                Int          @default(60) // مدة الحصة بالدقائق
+  stage                   String       @default("ALL") // "SECONDARY" | "UNIVERSITY" | "ALL"
+  courseId                String?
+  course                  Course?      @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  price                   Float        @default(0) // 0 = مجانية، > 0 = تذكرة مدفوعة
+  isFreeForCourseEnrolled Boolean      @default(true) // مجانية تلقائياً للمشتركين في الكورس
+  sessionType             String       @default("WEBRTC") // "WEBRTC" | "STREAM" | "EXTERNAL"
+  roomName                String?      // اسم الغرفة المدمجة المشفر
+  streamUrl               String?      // رابط البث المباشر أو Zoom
+  recordingUrl            String?      // رابط تسجيل الحصة
+  status                  String       @default("SCHEDULED") // "SCHEDULED" | "LIVE" | "ENDED" | "CANCELLED"
+  maxParticipants         Int          @default(100)
+  tickets                 LiveTicket[]
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
+}
+
+// ------------------------------------------------------
+// 14. جدول تذاكر واشتراكات الحصص المباشرة
+// ------------------------------------------------------
+model LiveTicket {
+  id             String      @id @default(cuid())
+  sessionId      String
+  session        LiveSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pricePaid      Float       @default(0)
+  status         String      @default("ACTIVE") // "PENDING" | "ACTIVE" | "REJECTED" | "CANCELLED"
+  paymentMethod  String      @default("MANUAL") // "INSTAPAY" | "VODAFONE_CASH" | "BANK_TRANSFER" | "MANUAL"
+  senderPhone    String?
+  transactionRef String?
+  receiptUrl     String?     @db.Text
+  adminNote      String?
+  activatedAt    DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@unique([sessionId, userId])
+}
+
+// ------------------------------------------------------
+// 15. جدول الاختبارات والواجبات الإلكترونية
+// ------------------------------------------------------
+model Quiz {
+  id              String           @id @default(cuid())
+  title           String
+  description     String?          @db.Text
+  passingScore    Int              @default(60) // النسبة المئوية للنجاح
+  durationMinutes Int              @default(20) // المدة بالدقائق
+  
+  courseId        String
+  course          Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  lessonId        String?
+  lesson          Lesson?          @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  
+  questions       QuizQuestion[]
+  submissions     QuizSubmission[]
+  
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model QuizQuestion {
+  id           String       @id @default(cuid())
+  quizId       String
+  quiz         Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  
+  questionText String       @db.Text
+  imageUrl     String?      // رابط صورة أو مخطط توضيحي (بيولوجيا/كيمياء/أنسجة)
+  explanation  String?      @db.Text // التفسير العلمي للإجابة الصحيحة
+  points       Int          @default(1)
+  order        Int          @default(0)
+  
+  options      QuizOption[]
+  
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model QuizOption {
+  id         String       @id @default(cuid())
+  questionId String
+  question   QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  optionText String
+  isCorrect  Boolean      @default(false)
+  order      Int          @default(0)
+}
+
+model QuizSubmission {
+  id          String   @id @default(cuid())
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  score       Float    // النسبة المئوية المحرزة
+  passed      Boolean
+  answers     Json?    // سجل إجابات الطالب بالتفصيل
+  
+  submittedAt DateTime @default(now())
+}
+
+// ------------------------------------------------------
+// 16. جدول شهادات الإتمام المعتمدة برمز التحقق QR
+// ------------------------------------------------------
+model Certificate {
+  id              String   @id @default(cuid())
+  certificateCode String   @unique // كود التحقق الرسمي مثلاً ORCA-CERT-2026-8942
+  
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  courseId        String
+  course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  studentName     String
+  courseTitle     String
+  grade           String   @default("امتياز") // التقدير
+  score           Float?   // النسبة المئوية إن وُجدت
+  issueDate       DateTime @default(now())
+  isRevoked       Boolean  @default(false) // هل تم سحب أو إلغاء الشهادة
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+

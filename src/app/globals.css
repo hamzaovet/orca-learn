@@ -1,26 +1,158 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #050B14;
+  --foreground: #e2e8f0;
+
+  /* Default Theme: emerald */
+  --theme-primary: #10b981;
+  --theme-primary-hover: #059669;
+  --theme-secondary: #06b6d4;
+  --theme-accent: #34d399;
+  --theme-glow: rgba(16, 185, 129, 0.4);
+  --theme-border: rgba(16, 185, 129, 0.2);
+  --theme-border-hover: rgba(16, 185, 129, 0.5);
+  --theme-badge-bg: rgba(16, 185, 129, 0.15);
+  --theme-badge-text: #6ee7b7;
+  --theme-gradient: linear-gradient(to left, #10b981, #06b6d4);
+  --theme-gradient-reverse: linear-gradient(to right, #10b981, #06b6d4);
+}
+
+[data-theme="emerald"] {
+  --theme-primary: #10b981;
+  --theme-primary-hover: #059669;
+  --theme-secondary: #06b6d4;
+  --theme-accent: #34d399;
+  --theme-glow: rgba(16, 185, 129, 0.4);
+  --theme-border: rgba(16, 185, 129, 0.2);
+  --theme-border-hover: rgba(16, 185, 129, 0.5);
+  --theme-badge-bg: rgba(16, 185, 129, 0.15);
+  --theme-badge-text: #6ee7b7;
+  --theme-gradient: linear-gradient(to left, #10b981, #06b6d4);
+  --theme-gradient-reverse: linear-gradient(to right, #10b981, #06b6d4);
+}
+
+[data-theme="cyan"] {
+  --theme-primary: #06b6d4;
+  --theme-primary-hover: #0891b2;
+  --theme-secondary: #3b82f6;
+  --theme-accent: #22d3ee;
+  --theme-glow: rgba(6, 182, 212, 0.4);
+  --theme-border: rgba(6, 182, 212, 0.2);
+  --theme-border-hover: rgba(6, 182, 212, 0.5);
+  --theme-badge-bg: rgba(6, 182, 212, 0.15);
+  --theme-badge-text: #67e8f9;
+  --theme-gradient: linear-gradient(to left, #06b6d4, #3b82f6);
+  --theme-gradient-reverse: linear-gradient(to right, #06b6d4, #3b82f6);
+}
+
+[data-theme="violet"] {
+  --theme-primary: #8b5cf6;
+  --theme-primary-hover: #7c3aed;
+  --theme-secondary: #ec4899;
+  --theme-accent: #a78bfa;
+  --theme-glow: rgba(139, 92, 246, 0.4);
+  --theme-border: rgba(139, 92, 246, 0.2);
+  --theme-border-hover: rgba(139, 92, 246, 0.5);
+  --theme-badge-bg: rgba(139, 92, 246, 0.15);
+  --theme-badge-text: #c4b5fd;
+  --theme-gradient: linear-gradient(to left, #8b5cf6, #ec4899);
+  --theme-gradient-reverse: linear-gradient(to right, #8b5cf6, #ec4899);
+}
+
+[data-theme="amber"] {
+  --theme-primary: #f59e0b;
+  --theme-primary-hover: #d97706;
+  --theme-secondary: #ea580c;
+  --theme-accent: #fbbf24;
+  --theme-glow: rgba(245, 158, 11, 0.4);
+  --theme-border: rgba(245, 158, 11, 0.2);
+  --theme-border-hover: rgba(245, 158, 11, 0.5);
+  --theme-badge-bg: rgba(245, 158, 11, 0.15);
+  --theme-badge-text: #fcd34d;
+  --theme-gradient: linear-gradient(to left, #f59e0b, #ea580c);
+  --theme-gradient-reverse: linear-gradient(to right, #f59e0b, #ea580c);
+}
+
+[data-theme="ruby"] {
+  --theme-primary: #f43f5e;
+  --theme-primary-hover: #e11d48;
+  --theme-secondary: #fb7185;
+  --theme-accent: #fda4af;
+  --theme-glow: rgba(244, 63, 94, 0.4);
+  --theme-border: rgba(244, 63, 94, 0.2);
+  --theme-border-hover: rgba(244, 63, 94, 0.5);
+  --theme-badge-bg: rgba(244, 63, 94, 0.15);
+  --theme-badge-text: #fecdd3;
+  --theme-gradient: linear-gradient(to left, #f43f5e, #fb7185);
+  --theme-gradient-reverse: linear-gradient(to right, #f43f5e, #fb7185);
+}
+
+[data-theme="ocean"] {
+  --theme-primary: #0ea5e9;
+  --theme-primary-hover: #0284c7;
+  --theme-secondary: #2563eb;
+  --theme-accent: #38bdf8;
+  --theme-glow: rgba(14, 165, 233, 0.4);
+  --theme-border: rgba(14, 165, 233, 0.2);
+  --theme-border-hover: rgba(14, 165, 233, 0.5);
+  --theme-badge-bg: rgba(14, 165, 233, 0.15);
+  --theme-badge-text: #7dd3fc;
+  --theme-gradient: linear-gradient(to left, #0ea5e9, #2563eb);
+  --theme-gradient-reverse: linear-gradient(to right, #0ea5e9, #2563eb);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ── Glassmorphism utility ── */
+.glass-panel {
+  @apply bg-slate-900/50 backdrop-blur-md border border-white/10 shadow-2xl;
+}
+
+/* ── Dynamic Theme Gradient Text ── */
+.text-gradient {
+  background: var(--theme-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Dynamic Theme Button ── */
+.btn-theme-primary {
+  background: var(--theme-gradient);
+  color: #ffffff;
+  box-shadow: 0 0 30px var(--theme-glow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-theme-primary:hover {
+  box-shadow: 0 0 50px var(--theme-glow);
+  transform: translateY(-2px);
+}
+
+/* ── Theme dynamic badge ── */
+.theme-badge {
+  background: var(--theme-badge-bg);
+  color: var(--theme-badge-text);
+  border: 1px solid var(--theme-border);
+}
+
+/* ── Keyframes for floating particles ── */
+@keyframes bio-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(6deg);
+  }
+}
+
+.animate-bio-float {
+  animation: bio-float 8s ease-in-out infinite;
 }

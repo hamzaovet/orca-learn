@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# uploads & working files
+CV new.doc
+cv_extracted.txt
+/public/uploads/receipts/*
+!/public/uploads/receipts/.gitkeep

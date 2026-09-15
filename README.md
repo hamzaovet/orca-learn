@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# منصة أوركا ليرن الأكاديمية (Orca Learn)
+### المنظومة التعليمية الرقمية للدكتورة صالحة جابر الدسوقي
 
-## Getting Started
+منصة تعليمية ذكية ومتطورة متخصصة في تدريس علوم **الميكروبيولوجيا، والتكنولوجيا الحيوية، والأحياء العامة والطبية** لطلاب الثانوية العامة (علمي علوم) وطلاب كليات العلوم والطب والصيدلة والدراسات العليا.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🌟 أبرز مميزات المنصة
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- 🎓 **منهج أكاديمي شامل**: دعم مرحلتي الثانوية العامة والجامعات مع تصنيف التخصصات والأقسام.
+- 🎥 **فصول افتراضية مدمجة (WebRTC)**: بث مباشر تفاعلي بالصوت والصورة ومشاركة الشاشة والشات الحي دون مغادرة الموقع وبدون الحاجة لزووم.
+- 🛡️ **علامة مائية رقمية متحركة مانعة للتسريب (Anti-Piracy)**: طباعة هوية الطالب ورقم هاتفه عشوائياً فوق الفيديو لحماية المحتوى الأكاديمي.
+- 💳 **منظومة اشتراكات وسداد يدوي متكاملة**: تحويل فوري عبر فودافون كاش وانستاباي وتحويل بنكي، ورفع الإيصال وتفعيله بنقرة واحدة من لوحة التحكم.
+- 📝 **محرك اختبارات وتصحيح ذاتي فوري**: بنك أسئلة مع صور ورسوم بيولوجية وتفسيرات علمية وحساب درجات تلقائي.
+- 📜 **شهادات إتمام ذكية مع كود تحقق ورمز QR**: توثيق فوري لصحة الشهادات عبر بوابة التحقق الرسمية.
+- 🎨 **مكتبة ثيمات ديناميكية**: 5 ثيمات لونية فاخرة تُدار من لوحة التحكم وتنعكس لحظياً على المنصة.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 التقنيات المستخدمة (Tech Stack)
 
-## Learn More
+- **Framework**: Next.js 16 (App Router + Turbopack)
+- **Database**: PostgreSQL (Neon Serverless)
+- **ORM**: Prisma ORM 6.19
+- **Authentication**: NextAuth.js (JWT Strategy + Credentials)
+- **Video & WebRTC**: Jitsi Meet External API & Custom Player
+- **Styling**: Tailwind CSS 4 + Framer Motion + Canvas Particles
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ⚖️ الحقوق والملكية
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **الملكية الفكرية والتطوير البرمجي**: شركة **Orca Learn** © 2026 جميع الحقوق محفوظة.
+- **الإشراف والمحتوى الأكاديمي**: الأستاذة الدكتورة **صالحة جابر الدسوقي** (دكتوراه الفلسفة في العلوم).
